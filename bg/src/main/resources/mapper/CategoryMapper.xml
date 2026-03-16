@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smartcoffee.mapper.CategoryMapper">
+  <select id="list" resultType="com.smartcoffee.entity.Category">
+    SELECT id, name, sort_order AS sortOrder
+    FROM category
+    ORDER BY sort_order ASC, id ASC
+  </select>
+  <select id="findById" parameterType="int" resultType="com.smartcoffee.entity.Category">
+    SELECT id, name, sort_order AS sortOrder
+    FROM category
+    WHERE id = #{id}
+  </select>
+  <insert id="insert" parameterType="com.smartcoffee.entity.Category" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO category(name, sort_order)
+    VALUES(#{name}, #{sortOrder})
+  </insert>
+  <update id="update" parameterType="com.smartcoffee.entity.Category">
+    UPDATE category
+    SET name = #{name},
+        sort_order = #{sortOrder}
+    WHERE id = #{id}
+  </update>
+  <delete id="deleteById" parameterType="int">
+    DELETE FROM category WHERE id = #{id}
+  </delete>
+</mapper>

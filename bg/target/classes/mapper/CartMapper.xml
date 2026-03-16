@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smartcoffee.mapper.CartMapper">
+  <resultMap id="CartItemMap" type="com.smartcoffee.entity.CartItem">
+    <id column="id" property="id"/>
+    <result column="user_id" property="userId"/>
+    <result column="product_id" property="productId"/>
+    <result column="product_name" property="productName"/>
+    <result column="product_image" property="productImage"/>
+    <result column="sku_spec" property="skuSpec"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
+    <result column="create_time" property="createTime"/>
+  </resultMap>
+
+  <select id="listByUser" resultMap="CartItemMap">
+    SELECT 
+      c.*,
+      p.name AS product_name,
+      p.image_url AS product_image
+    FROM cart_item c
+    LEFT JOIN products p ON c.product_id = p.id
+    WHERE c.user_id = #{userId}
+    ORDER BY c.id DESC
+  </select>
+
+  <select id="findOne" resultMap="CartItemMap">
+    SELECT 
+      c.*,
+      p.name AS product_name,
+      p.image_url AS product_image
+    FROM cart_item c
+    LEFT JOIN products p ON c.product_id = p.id
+    WHERE c.user_id = #{userId}
+      AND c.product_id = #{productId}
+      AND (#{skuSpec} IS NULL OR c.sku_spec = #{skuSpec})
+  </select>
+
+  <insert id="insert" parameterType="com.smartcoffee.entity.CartItem" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO cart_item(user_id, product_id, sku_spec, price, quantity)
+    VALUES(#{userId}, #{productId}, #{skuSpec}, #{price}, #{quantity})
+  </insert>
+
+  <insert id="upsertAddQuantity" parameterType="com.smartcoffee.entity.CartItem">
+    INSERT INTO cart_item(user_id, product_id, sku_spec, price, quantity)
+    VALUES(#{userId}, #{productId}, #{skuSpec}, #{price}, #{quantity})
+    ON DUPLICATE KEY UPDATE 
+      price = VALUES(price),
+      quantity = quantity + VALUES(quantity)
+  </insert>
+
+  <update id="updateQuantity">
+    UPDATE cart_item SET quantity = #{quantity} WHERE id = #{id}
+  </update>
+
+  <delete id="deleteById">
+    DELETE FROM cart_item WHERE id = #{id}
+  </delete>
+
+  <delete id="clearByUser">
+    DELETE FROM cart_item WHERE user_id = #{userId}
+  </delete>
+</mapper>

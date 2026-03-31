@@ -1,84 +1,103 @@
 <template>
-  <div class="common-layout">
-    <el-container style="height: 100vh;">
-      <el-header style="display:flex; align-items:center; gap:12px; border-bottom: 1px solid #dcdfe6;">
-        <span id="logo" style="cursor:pointer;" @click="router.push('/')">
-          <img src="/static/picture/logo.jpg" alt="logo" style="height:40px;">
-        </span>
-        <h2 style="margin:0;">SmartCoffee</h2>
-        <span style="opacity:.7;">智能咖啡系统</span>
-      </el-header>
-      <el-container style="overflow: hidden;">
-        <Sidebar active="menu" />
-        <el-main>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0;">咖啡菜单</h2>
-            <div style="display: flex; gap: 12px;">
-              <el-input v-model="searchQuery" placeholder="搜索咖啡..." style="width: 200px;" @input="fetchProducts" />
-              <el-select v-model="selectedCategory" placeholder="选择分类" style="width: 150px;" clearable @change="fetchProducts">
-                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-              </el-select>
-            </div>
-          </div>
-          
-          <el-row :gutter="20">
-            <el-col v-for="product in products" :key="product.id" :span="6">
-              <el-card :body-style="{ padding: '0px' }" style="margin-bottom: 20px; cursor: pointer;" @click="showDetail(product)">
-                <img :src="product.imageUrl || '/static/picture/xuanchuan1.jpg'" style="width: 100%; height: 180px; object-fit: cover;" />
-                <div style="padding: 14px;">
-                  <span style="font-weight: bold;">{{ product.name }}</span>
-                  <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: #f56c6c; font-size: 18px;">¥ {{ product.minPrice || '—' }} 起</span>
-                    <el-button type="primary" size="small" circle @click.stop="showDetail(product)">
-                      <el-icon><Plus /></el-icon>
-                    </el-button>
-                  </div>
-                </div>
-              </el-card>
-            </el-col>
-          </el-row>
-          
-          <el-pagination
-            v-if="total > pageSize"
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="pageSize"
-            v-model:current-page="currentPage"
-            @current-change="fetchProducts"
-            style="margin-top: 20px; display: flex; justify-content: center;"
-          />
-          
-          <el-empty v-if="products.length === 0" description="暂无咖啡，换个搜索词试试" />
-          
-          <Footer />
-        </el-main>
-      </el-container>
-    </el-container>
+  <div class="menu-wrapper">
+    <Navbar />
     
-    <el-dialog v-model="detailVisible" :title="selectedProduct?.name" width="600px">
-      <div v-if="selectedProduct" style="display: flex; gap: 20px;">
-        <img :src="selectedProduct.imageUrl || '/static/picture/xuanchuan1.jpg'" style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
-        <div style="flex: 1;">
-          <h3 style="margin-top: 0;">{{ selectedProduct.name }}</h3>
-          <p style="color: #606266; font-size: 14px;">{{ selectedProduct.description }}</p>
+    <div class="page-container">
+      <div class="menu-header">
+        <h2>Our Menu</h2>
+        <div class="menu-filters">
+          <el-input 
+            v-model="searchQuery" 
+            placeholder="Search coffee..." 
+            class="search-input"
+            prefix-icon="Search"
+            @input="fetchProducts" 
+          />
+          <el-select 
+            v-model="selectedCategory" 
+            placeholder="All Categories" 
+            class="category-select"
+            clearable 
+            @change="fetchProducts">
+            <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+          </el-select>
+        </div>
+      </div>
+      
+      <el-row :gutter="24">
+        <el-col v-for="product in products" :key="product.id" :span="6" :xs="24" :sm="12" :md="8" :lg="6">
+          <el-card class="coffee-card" @click="showDetail(product)">
+            <div class="img-wrapper">
+              <img :src="product.imageUrl || '/static/picture/xuanchuan1.jpg'" @error="handleImageError" />
+            </div>
+            <div class="card-content">
+              <h3>{{ product.name }}</h3>
+              <p class="desc">{{ product.description }}</p>
+              <div class="card-footer">
+                <span class="price">¥ {{ product.minPrice || '—' }}</span>
+                <el-button v-if="!isAdmin" type="primary" circle class="add-btn" @click.stop="showDetail(product)">
+                  <el-icon><Plus /></el-icon>
+                </el-button>
+                <el-button v-else type="primary" plain class="view-btn" @click.stop="showDetail(product)">
+                  查看详情
+                </el-button>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+      
+      <div class="pagination-wrapper" v-if="total > pageSize">
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total"
+          :page-size="pageSize"
+          v-model:current-page="currentPage"
+          @current-change="fetchProducts"
+        />
+      </div>
+      
+      <el-empty v-if="products.length === 0" description="No coffee found" class="empty-state" />
+      
+    </div>
+    <Footer />
+    
+    <!-- Detail Dialog -->
+    <el-dialog v-model="detailVisible" :title="selectedProduct?.name" width="650px" custom-class="coffee-dialog" destroy-on-close>
+      <div v-if="selectedProduct" class="dialog-content">
+        <img :src="selectedProduct.imageUrl || '/static/picture/xuanchuan1.jpg'" class="dialog-img" @error="handleImageError" />
+        <div class="dialog-info">
+          <h3>{{ selectedProduct.name }}</h3>
+          <p class="dialog-desc">{{ selectedProduct.description }}</p>
           
-          <div style="margin-top: 20px;">
-            <p style="margin-bottom: 8px; font-weight: bold;">选择规格</p>
+          <div class="spec-section">
+            <h4>Select Size & Spec</h4>
             <el-radio-group v-model="selectedSkuId">
-              <el-radio-button v-for="sku in skus" :key="sku.id" :label="sku.id">
+              <el-radio-button v-for="sku in skus" :key="sku.id" :label="sku.id" border>
                 {{ sku.specName }}
               </el-radio-button>
             </el-radio-group>
           </div>
 
-          <div style="margin-top: 20px;">
-            <span style="color: #f56c6c; font-size: 24px; font-weight: bold;">¥ {{ currentPrice }}</span>
+          <div class="price-section">
+            <span class="currency">¥</span>
+            <span class="amount">{{ currentPrice }}</span>
           </div>
           
-          <div style="margin-top: 30px;">
-            <el-button type="primary" size="large" style="width: 100%;" :disabled="!selectedSkuId || isAdmin" @click="addToCartWithTip()">加入购物车</el-button>
-          </div>
+          <el-button
+            v-if="!isAdmin"
+            type="primary"
+            size="large"
+            class="submit-btn"
+            :disabled="!selectedSkuId"
+            @click="addToCartWithTip()"
+          >
+            加入购物车
+          </el-button>
+          <el-button v-else plain size="large" class="submit-btn">
+            管理员仅浏览菜单
+          </el-button>
         </div>
       </div>
     </el-dialog>
@@ -87,20 +106,18 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Search } from '@element-plus/icons-vue'
 import axios from 'axios'
+import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
-import Sidebar from '../components/Sidebar.vue'
 import { useCartStore } from '../store/cart'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../store/user'
 
-const router = useRouter()
 const cartStore = useCartStore()
 const userStore = useUserStore()
+// 标记当前登录用户是否为管理员，用于控制是否展示加购能力。
 const isAdmin = computed(() => userStore.isAdmin)
-const active = ref("menu")
 const searchQuery = ref('')
 const selectedCategory = ref(null)
 const categories = ref([])
@@ -113,11 +130,18 @@ const total = ref(0)
 
 const skus = ref([])
 const selectedSkuId = ref(null)
+// 根据当前选中的规格，实时计算弹窗中展示的价格。
 const currentPrice = computed(() => {
   const sku = skus.value.find(s => s.id === selectedSkuId.value)
   return sku ? sku.price : (selectedProduct.value?.minPrice || '—')
 })
 
+// 当商品图片失效时，回退到默认宣传图。
+const handleImageError = (event) => {
+  event.target.src = '/static/picture/xuanchuan1.jpg'
+}
+
+// 拉取商品分类数据，用于顶部筛选下拉框。
 const fetchCategories = async () => {
   try {
     const res = await axios.get('/api/categories')
@@ -128,6 +152,7 @@ const fetchCategories = async () => {
   }
 }
 
+// 根据搜索词、分类和分页条件请求商品列表。
 const fetchProducts = async () => {
   try {
     const res = await axios.get('/api/products', {
@@ -147,6 +172,7 @@ const fetchProducts = async () => {
   }
 }
 
+// 打开商品详情弹窗，并同步加载该商品的所有规格。
 const showDetail = async (product) => {
   selectedProduct.value = product
   detailVisible.value = true
@@ -163,6 +189,7 @@ const showDetail = async (product) => {
   }
 }
 
+// 校验规格和角色后，把当前商品与规格加入购物车并给出提示。
 const addToCartWithTip = () => {
   if (isAdmin.value) {
     ElMessage.warning('管理员账号不支持购物车')
@@ -190,3 +217,163 @@ onMounted(() => {
   fetchProducts()
 })
 </script>
+
+<style scoped>
+.menu-wrapper {
+  background-color: var(--el-bg-color-page);
+  min-height: 100vh;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--el-border-color);
+}
+
+.menu-header h2 {
+  font-family: serif;
+  color: var(--el-color-primary);
+  font-size: 32px;
+  margin: 0;
+}
+
+.menu-filters {
+  display: flex;
+  gap: 16px;
+}
+
+.img-wrapper {
+  overflow: hidden;
+  height: 220px;
+}
+
+.img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.coffee-card:hover .img-wrapper img {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--el-text-color-primary);
+}
+
+.card-content .desc {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 36px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price {
+  color: var(--el-color-primary);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.add-btn {
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  transition: transform 0.2s;
+}
+
+.view-btn {
+  border-radius: 20px;
+}
+
+.add-btn:hover {
+  transform: scale(1.1);
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+/* Dialog Styles */
+.dialog-content {
+  display: flex;
+  gap: 30px;
+}
+
+.dialog-img {
+  width: 280px;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.dialog-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+  font-family: serif;
+}
+
+.dialog-desc {
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.spec-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  color: var(--el-text-color-primary);
+}
+
+.price-section {
+  margin-top: auto;
+  margin-bottom: 20px;
+  color: var(--el-color-primary);
+}
+
+.currency {
+  font-size: 18px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.amount {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 24px;
+}
+</style>

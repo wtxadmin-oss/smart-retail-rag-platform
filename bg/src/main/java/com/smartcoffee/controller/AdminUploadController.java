@@ -17,6 +17,7 @@ public class AdminUploadController {
   @Resource private ServletContext servletContext;
 
   @PostMapping("/image")
+  // 接收后台上传的商品图片文件，保存到本地 uploads 目录并返回访问路径。
   public Result<String> uploadImage(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
     if (file == null || file.isEmpty()) {
       return Result.fail(400, "文件为空");
@@ -27,10 +28,7 @@ public class AdminUploadController {
       ext = original.substring(original.lastIndexOf('.'));
     }
     String filename = UUID.randomUUID().toString().replace("-", "") + ext;
-    String uploadDir = servletContext.getRealPath("/uploads");
-    if (uploadDir == null) {
-      uploadDir = new File("src/main/webapp/uploads").getAbsolutePath();
-    }
+    String uploadDir = new File(System.getProperty("user.dir"), "uploads").getAbsolutePath();
     File dir = new File(uploadDir);
     if (!dir.exists()) dir.mkdirs();
     File dest = new File(dir, filename);

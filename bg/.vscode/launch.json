@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug SmartCoffee Backend",
+      "request": "launch",
+      "mainClass": "com.smartcoffee.SmartCoffeeApplication",
+      "projectName": "SmartCoffee_Demo",
+      "cwd": "${workspaceFolder}",
+      "classPaths": [
+        "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/target/test-classes",
+        "$Runtime"
+      ],
+      "modulePaths": [
+        "$Runtime"
+      ]
+    }
+  ]
+}

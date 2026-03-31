@@ -14,6 +14,7 @@ public class StoreController {
   @Resource private AmapGeocodeClient amapGeocodeClient;
 
   @PostMapping("/init")
+  // 根据历史订单地址初始化门店数据，并尝试自动补全经纬度。
   public Result<Void> initFromOrders() {
     storeMapper.initFromOrders();
     geocodeMissing(50);
@@ -21,6 +22,7 @@ public class StoreController {
   }
 
   @PostMapping("/geocode-missing")
+  // 批量为缺少经纬度的门店调用高德地理编码接口补齐坐标。
   public Result<Void> geocodeMissing(@RequestParam(defaultValue = "50") Integer limit) {
     List<Store> need = storeMapper.listNeedGeo(limit);
     for (Store s : need) {
@@ -33,6 +35,7 @@ public class StoreController {
   }
 
   @GetMapping
+  // 分页查询后台门店列表。
   public Result<Result.PageData<Store>> list(
       @RequestParam(defaultValue = "1") Integer pageNum,
       @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -43,6 +46,7 @@ public class StoreController {
   }
 
   @PostMapping
+  // 创建新的门店记录。
   public Result<Long> create(@RequestBody Store store) {
     if (store.getStatus() == null) store.setStatus(1);
     storeMapper.insert(store);
@@ -50,6 +54,7 @@ public class StoreController {
   }
 
   @PutMapping("/{id}")
+  // 更新指定门店的信息。
   public Result<Void> update(@PathVariable Long id, @RequestBody Store store) {
     store.setId(id);
     storeMapper.update(store);
@@ -57,6 +62,7 @@ public class StoreController {
   }
 
   @DeleteMapping("/{id}")
+  // 删除指定门店。
   public Result<Void> delete(@PathVariable Long id) {
     storeMapper.deleteById(id);
     return Result.ok();

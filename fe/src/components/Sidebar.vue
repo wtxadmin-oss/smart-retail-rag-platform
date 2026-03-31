@@ -1,61 +1,120 @@
 <template>
-  <el-aside width="220px" style="border-right: 1px solid #dcdfe6;">
-    <el-menu :default-active="active" style="border-right: none;">
-      <!-- Common for all -->
-      <el-menu-item index="home" @click="router.push('/')">首页</el-menu-item>
-      <el-menu-item index="wherecoffee" @click="router.push('/wherecoffee')">门店</el-menu-item>
-      <el-menu-item index="menu" @click="router.push('/menu')">菜单</el-menu-item>
-      <el-menu-item index="customer" @click="router.push('/customer')">客服</el-menu-item>
-      
-      <!-- Customer Only -->
-      <template v-if="userStore.isCustomer">
-        <el-menu-item index="cart" @click="router.push('/cart')">购物车</el-menu-item>
-        <el-menu-item index="orders" @click="router.push('/orders')">我的订单</el-menu-item>
-      </template>
-
-      <!-- Admin Only -->
-      <template v-if="userStore.isAdmin">
-        <el-sub-menu index="admin">
-          <template #title>管理后台</template>
-          <el-menu-item index="user-mgmt" @click="router.push('/admin/users')">用户管理</el-menu-item>
-          <el-menu-item index="menu-mgmt" @click="router.push('/admin/menu')">菜单管理</el-menu-item>
-          <el-menu-item index="store-mgmt" @click="router.push('/admin/stores')">门店管理</el-menu-item>
-          <el-menu-item index="spec-mgmt" @click="router.push('/admin/specs')">规格管理</el-menu-item>
-          <el-menu-item index="all-orders" @click="router.push('/admin/orders')">全部订单</el-menu-item>
-        </el-sub-menu>
-      </template>
-
-      <!-- User Management -->
-      <el-sub-menu index="user-profile">
-        <template #title>
-          <span>{{ userStore.isLoggedIn ? userStore.userInfo.username : '用户管理' }}</span>
-        </template>
-        <template v-if="userStore.isLoggedIn">
-          <el-menu-item index="profile" @click="router.push('/profile')">个人信息</el-menu-item>
-          <el-menu-item index="logout" @click="handleLogout">退出登录</el-menu-item>
-        </template>
-        <template v-else>
-          <el-menu-item index="login" @click="router.push('/login')">登录</el-menu-item>
-          <el-menu-item index="register" @click="router.push('/register')">注册</el-menu-item>
-        </template>
-      </el-sub-menu>
+  <el-aside width="240px" class="admin-sidebar">
+    <div class="sidebar-header">
+      <el-icon :size="24" color="var(--el-color-primary)"><Setting /></el-icon>
+      <h3>管理后台</h3>
+    </div>
+    <el-menu 
+      :default-active="active" 
+      class="admin-menu"
+      active-text-color="var(--el-color-primary)"
+    >
+      <el-menu-item index="all-orders" @click="router.push('/admin/orders')">
+        <el-icon><List /></el-icon>
+        <span>全部订单</span>
+      </el-menu-item>
+      <el-menu-item index="menu-mgmt" @click="router.push('/admin/menu')">
+        <el-icon><Coffee /></el-icon>
+        <span>菜单管理</span>
+      </el-menu-item>
+      <el-menu-item index="spec-mgmt" @click="router.push('/admin/specs')">
+        <el-icon><Setting /></el-icon>
+        <span>规格管理</span>
+      </el-menu-item>
+      <el-menu-item index="store-mgmt" @click="router.push('/admin/stores')">
+        <el-icon><Shop /></el-icon>
+        <span>门店管理</span>
+      </el-menu-item>
+      <el-menu-item index="user-mgmt" @click="router.push('/admin/users')">
+        <el-icon><User /></el-icon>
+        <span>用户管理</span>
+      </el-menu-item>
     </el-menu>
   </el-aside>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../store/user'
+import { Setting, List, Coffee, Shop, User } from '@element-plus/icons-vue'
 
 const props = defineProps({
   active: String
 })
 
 const router = useRouter()
-const userStore = useUserStore()
-
-const handleLogout = () => {
-  userStore.clearUser()
-  router.push('/login')
-}
 </script>
+
+<style scoped>
+.admin-sidebar {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--el-border-color-light);
+  overflow: hidden;
+  height: calc(100vh - 140px);
+  position: sticky;
+  top: 100px;
+}
+
+.sidebar-header {
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--el-border-color-light);
+  background-color: var(--el-color-primary-light-9);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--el-text-color-primary);
+  font-weight: 600;
+}
+
+.admin-menu {
+  border-right: none;
+  padding: 12px 0;
+}
+
+:deep(.el-menu-item) {
+  height: 50px;
+  line-height: 50px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  color: var(--el-text-color-regular);
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: var(--el-color-primary-light-9);
+  font-weight: 600;
+}
+
+:deep(.el-menu-item:hover) {
+  background-color: var(--el-color-primary-light-9);
+}
+
+@media (max-width: 992px) {
+  .admin-sidebar {
+    width: 100% !important;
+    height: auto;
+    position: static;
+  }
+
+  .sidebar-header {
+    padding: 18px 20px;
+  }
+
+  .admin-menu {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  :deep(.el-menu-item) {
+    margin: 0;
+    flex: 1 1 140px;
+  }
+}
+</style>

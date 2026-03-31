@@ -34,10 +34,25 @@ const routes = [
     component: () => import('../views/Customer.vue')
   },
   {
+    path: '/brand',
+    name: 'BrandStory',
+    component: () => import('../views/BrandStory.vue')
+  },
+  {
+    path: '/membership',
+    name: 'Membership',
+    component: () => import('../views/Membership.vue')
+  },
+  {
+    path: '/wiki',
+    name: 'CoffeeWiki',
+    component: () => import('../views/CoffeeWiki.vue')
+  },
+  {
     path: '/cart',
     name: 'Cart',
     component: () => import('../views/Cart.vue'),
-    meta: { requiresAuth: true, role: 'customer' }
+    meta: { forbidAdmin: true }
   },
   {
     path: '/profile',
@@ -49,7 +64,7 @@ const routes = [
     path: '/orders',
     name: 'Orders',
     component: () => import('../views/Orders.vue'),
-    meta: { requiresAuth: true, role: 'customer' }
+    meta: { requiresAuth: true, forbidAdmin: true }
   },
   // Admin Routes
   {
@@ -92,11 +107,13 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const roleUpper = (userStore.userInfo?.role || '').toUpperCase()
+  const isAdmin = roleUpper === 'ADMIN'
   
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     next('/login')
+  } else if (to.meta.forbidAdmin && isAdmin) {
+    next('/')
   } else if (to.meta.role && roleUpper !== to.meta.role.toUpperCase()) {
-    // 严格角色访问控制：管理员不能访问客户路由，客户不能访问管理员路由
     next('/')
   } else {
     next()

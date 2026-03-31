@@ -16,6 +16,7 @@ public class PublicStoreController {
   @Resource private StoreMapper storeMapper;
 
   @GetMapping
+  // 提供给前台地图页面使用，只返回处于营业状态的门店。
   public Result<List<Store>> listActive() {
     return Result.ok(storeMapper.listActive());
   }

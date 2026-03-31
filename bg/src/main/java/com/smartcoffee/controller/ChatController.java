@@ -26,6 +26,7 @@ public class ChatController {
   }
 
   @PostMapping("/chat")
+  // 接收前端消息并调用 RAG 问答服务生成回复内容。
   public Map<String, Object> chat(@RequestBody ChatReq req) {
     String msg = req == null ? null : req.message;
     if (msg == null || msg.trim().isEmpty()) {
@@ -40,6 +41,7 @@ public class ChatController {
   }
 
   @PostMapping("/admin/rag/rebuild")
+  // 重新构建知识库索引，供管理员手动刷新问答数据。
   public Map<String, Object> rebuild() {
     int count = ragChatService.rebuildRagIndex();
     Map<String, Object> r = new HashMap<>();
@@ -49,6 +51,7 @@ public class ChatController {
   }
 
   @GetMapping("/admin/rag/status")
+  // 查看知识库索引状态、Redis 连通性以及 AI Key 是否可用。
   public Map<String, Object> status() {
     Map<String, Object> r = new HashMap<>();
     r.put("ragKey", ragChatService.getRagKey());

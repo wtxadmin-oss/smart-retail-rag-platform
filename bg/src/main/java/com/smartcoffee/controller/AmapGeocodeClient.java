@@ -24,6 +24,7 @@ public class AmapGeocodeClient {
     }
   }
 
+  // 调用高德地理编码接口，把门店地址转换为经纬度坐标。
   public LngLat geocode(String address) {
     String key = System.getProperty("amap.key");
     if (key == null || key.trim().isEmpty()) {

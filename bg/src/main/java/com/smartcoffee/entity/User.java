@@ -1,10 +1,12 @@
 package com.smartcoffee.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 
 public class User {
   private Long id;
   private String username;
+  @JsonIgnore
   private String password;
   private String role;
   private String phone;

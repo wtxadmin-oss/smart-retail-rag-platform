@@ -1,0 +1,88 @@
+/* Global Coffee Theme */
+:root {
+  --el-color-primary: #8B5A2B;
+  --el-color-primary-light-3: #a97e55;
+  --el-color-primary-light-5: #c5a480;
+  --el-color-primary-light-7: #dfc9aa;
+  --el-color-primary-light-8: #ecded5;
+  --el-color-primary-light-9: #f8f1eb;
+  --el-color-primary-dark-2: #6f4822;
+  
+  --el-text-color-primary: #2C241B;
+  --el-text-color-regular: #4A4036;
+  --el-text-color-secondary: #8B7E74;
+  
+  --el-bg-color: #FDFBF7;
+  --el-bg-color-page: #F5F2EB;
+  
+  --el-border-color: #E8DFD8;
+  --el-border-color-light: #F0EAE3;
+}
+
+body {
+  margin: 0;
+  background-color: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page container for non-admin pages */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 90px 20px 40px; /* Account for fixed navbar */
+  min-height: calc(100vh - 200px);
+}
+
+/* Commercial Card Styling */
+.coffee-card {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(139, 90, 43, 0.06) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  background: #fff;
+  overflow: hidden;
+}
+
+.coffee-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(139, 90, 43, 0.12) !important;
+}
+
+/* Admin Layout Container */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 20px;
+  background-color: var(--el-bg-color-page);
+  overflow-y: auto;
+}
+
+/* Button overrides */
+.el-button--primary {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.el-button--primary.is-plain {
+  background-color: var(--el-color-primary-light-9);
+}
+
+/* Input overrides */
+.el-input__wrapper {
+  box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+}
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+}
+
+/* Empty state styling */
+.el-empty__description p {
+  color: var(--el-text-color-secondary);
+}

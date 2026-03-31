@@ -7,6 +7,7 @@ public class CartItem {
   private Long id;
   private Long userId;
   private Long productId;
+  private Long skuId;
   private String productName;
   private String productImage;
   private String skuSpec;
@@ -20,6 +21,8 @@ public class CartItem {
   public void setUserId(Long userId) { this.userId = userId; }
   public Long getProductId() { return productId; }
   public void setProductId(Long productId) { this.productId = productId; }
+  public Long getSkuId() { return skuId; }
+  public void setSkuId(Long skuId) { this.skuId = skuId; }
   public String getProductName() { return productName; }
   public void setProductName(String productName) { this.productName = productName; }
   public String getProductImage() { return productImage; }

@@ -8,11 +8,15 @@
         <p v-if="!userStore.isLoggedIn" class="guest-tip">游客可先加入购物车，登录后会自动同步购物车内容</p>
         <el-card class="cart-card" shadow="never">
           <el-table :data="cartStore.items" style="width: 100%" class="custom-table">
-            <el-table-column label="商品" min-width="300">
+            <el-table-column label="商品" min-width="260">
               <template #default="scope">
                 <div class="product-info">
                   <img :src="scope.row.imageUrl || '/static/picture/xuanchuan1.jpg'" class="product-img" @error="handleImageError" />
-                  <span class="product-name">{{ scope.row.name }}</span>
+                  <div>
+                    <div class="product-name">{{ scope.row.name }}</div>
+                    <!-- User-003: 规格字段统一用 specName，syncFromServer 已将 skuSpec 映射为 specName -->
+                    <div class="product-spec" v-if="scope.row.specName">{{ scope.row.specName }}</div>
+                  </div>
                 </div>
               </template>
             </el-table-column>
@@ -117,8 +121,7 @@ const submitOrder = async () => {
   try {
     const order = {
       userId: userStore.userInfo.id,
-      totalAmount: cartStore.totalPrice,
-      status: 0,
+      // User-004: 不传 status，让后端统一设置初始状态（制作中=1）
       receiverName: checkoutForm.value.receiverName,
       receiverPhone: checkoutForm.value.receiverPhone,
       receiverAddress: checkoutForm.value.receiverAddress,
@@ -126,6 +129,7 @@ const submitOrder = async () => {
         productId: it.productId,
         productName: it.name,
         productImage: it.imageUrl || '',
+        // User-003: 统一用 specName 字段
         skuSpec: it.specName || '',
         price: it.price,
         quantity: it.quantity
@@ -207,6 +211,12 @@ const submitOrder = async () => {
   font-weight: 500;
   color: var(--el-text-color-primary);
   font-size: 16px;
+}
+
+.product-spec {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  margin-top: 2px;
 }
 
 .price-text {

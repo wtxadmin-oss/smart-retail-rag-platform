@@ -120,6 +120,11 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  // User-008: 退出登录时重置购物车内存
+  function resetCart() {
+    items.value = []
+  }
+
   async function clearCart() {
     if (isLoggedIn.value && !userStore.isCustomer) return
     items.value = []
@@ -200,6 +205,7 @@ export const useCartStore = defineStore('cart', () => {
     removeFromCart,
     updateQuantity,
     clearCart,
+    resetCart,
     syncAfterLogin
   }
 })

@@ -120,7 +120,8 @@ onUnmounted(() => {
 
 const handleCommand = (command) => {
   if (command === 'logout') {
-    userStore.clearUser()
+    // User-008: 使用 logout() 同时清空购物车内存
+    userStore.logout()
     router.push('/login')
   } else if (command === 'admin') {
     router.push('/admin/orders')

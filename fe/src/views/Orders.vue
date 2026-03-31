@@ -24,9 +24,10 @@
             </el-table-column>
             <el-table-column label="收货人" prop="receiverName" width="120" />
             <el-table-column label="下单时间" prop="createTime" width="170" />
-            <el-table-column label="操作" width="150" fixed="right">
+            <el-table-column label="操作" width="200" fixed="right">
               <template #default="scope">
                 <el-button type="primary" text @click="viewDetail(scope.row)">详情</el-button>
+                <el-button v-if="isAdmin" type="warning" text @click="openStatusDialog(scope.row)">改状态</el-button>
                 <el-button v-if="isAdmin" type="danger" text @click="handleDelete(scope.row)">删除</el-button>
               </template>
             </el-table-column>
@@ -44,6 +45,29 @@
           </div>
         </el-card>
         
+        <!-- Admin-007: 修改订单状态弹窗 -->
+        <el-dialog v-model="statusDialogVisible" title="修改订单状态" width="360px" custom-class="coffee-dialog">
+          <el-form label-width="80px">
+            <el-form-item label="当前状态">
+              <el-tag :type="getStatusType(editingOrder?.status)" effect="light" round>
+                {{ getStatusText(editingOrder?.status) }}
+              </el-tag>
+            </el-form-item>
+            <el-form-item label="新状态">
+              <el-select v-model="newStatus" placeholder="请选择">
+                <el-option label="待支付" :value="0" />
+                <el-option label="制作中" :value="1" />
+                <el-option label="已完成" :value="2" />
+                <el-option label="已取消" :value="3" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <el-button @click="statusDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="submitStatusChange">确认修改</el-button>
+          </template>
+        </el-dialog>
+
         <el-dialog v-model="detailVisible" title="订单详情" width="700px" custom-class="coffee-dialog">
           <div v-if="selectedOrder" class="order-detail">
             <div class="detail-header">
@@ -94,6 +118,10 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const detailVisible = ref(false)
 const selectedOrder = ref(null)
+// Admin-007: 修改状态弹窗相关状态
+const statusDialogVisible = ref(false)
+const editingOrder = ref(null)
+const newStatus = ref(null)
 
 // 根据订单状态值返回不同的标签颜色，便于用户快速识别。
 const getStatusType = (status) => {
@@ -149,11 +177,37 @@ const viewDetail = async (order) => {
   }
 }
 
-// 删除订单前先弹出确认框，避免误操作。
+// Admin-007: 打开修改状态弹窗
+const openStatusDialog = (order) => {
+  editingOrder.value = order
+  newStatus.value = order.status
+  statusDialogVisible.value = true
+}
+
+// Admin-007: 提交状态修改到后端
+const submitStatusChange = async () => {
+  try {
+    await axios.put(`/api/admin/orders/${editingOrder.value.id}/status`, null, {
+      params: { status: newStatus.value }
+    })
+    ElMessage.success('订单状态已更新')
+    statusDialogVisible.value = false
+    fetchOrders()
+  } catch (e) {
+    ElMessage.error('状态更新失败')
+  }
+}
+
+// Admin-006: 删除订单调用后端接口
 const handleDelete = (order) => {
-  ElMessageBox.confirm('确定删除该订单吗？', '提示', { type: 'warning' }).then(() => {
-    ElMessage.success('订单已删除！')
-    orders.value = orders.value.filter(o => o.orderNo !== order.orderNo)
+  ElMessageBox.confirm('确定删除该订单吗？', '提示', { type: 'warning' }).then(async () => {
+    try {
+      await axios.delete(`/api/admin/orders/${order.id}`)
+      ElMessage.success('订单已删除')
+      fetchOrders()
+    } catch (e) {
+      ElMessage.error('删除失败，请检查后端服务')
+    }
   })
 }
 

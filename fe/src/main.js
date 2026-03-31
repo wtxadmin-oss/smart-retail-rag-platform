@@ -21,6 +21,24 @@ axios.interceptors.request.use((config) => {
   return config
 })
 
+// Exp-004: 全局 401 拦截，token 过期自动跳登录页
+axios.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('user')
+      // 避免在登录页重复跳转
+      if (window.location.pathname !== '/login') {
+        import('element-plus').then(({ ElMessage }) => {
+          ElMessage.warning('登录已过期，请重新登录')
+        })
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(err)
+  }
+)
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

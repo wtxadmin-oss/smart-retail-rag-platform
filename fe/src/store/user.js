@@ -19,6 +19,15 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('user')
   }
 
+  // User-008: 退出登录时清空购物车内存
+  function logout() {
+    clearUser()
+    // 动态引入避免循环依赖
+    import('./cart').then(({ useCartStore }) => {
+      useCartStore().resetCart()
+    })
+  }
+
   // Initialize from localStorage
   const savedUser = localStorage.getItem('user')
   if (savedUser) {
@@ -31,6 +40,7 @@ export const useUserStore = defineStore('user', () => {
     isAdmin,
     isCustomer,
     setUser,
-    clearUser
+    clearUser,
+    logout
   }
 })

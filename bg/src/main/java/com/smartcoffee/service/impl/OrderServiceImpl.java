@@ -2,11 +2,14 @@ package com.smartcoffee.service.impl;
 
 import com.smartcoffee.entity.Order;
 import com.smartcoffee.entity.OrderItem;
+import com.smartcoffee.entity.Store;
 import com.smartcoffee.entity.ProductSku;
 import com.smartcoffee.entity.Product;
 import com.smartcoffee.mapper.OrderMapper;
 import com.smartcoffee.mapper.ProductSkuMapper;
 import com.smartcoffee.mapper.ProductMapper;
+import com.smartcoffee.mapper.StoreMapper;
+import com.smartcoffee.mapper.StoreProductMapper;
 import com.smartcoffee.service.OrderService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,8 @@ public class OrderServiceImpl implements OrderService {
     @Resource private OrderMapper orderMapper;
     @Resource private ProductSkuMapper productSkuMapper;
     @Resource private ProductMapper productMapper;
+    @Resource private StoreMapper storeMapper;
+    @Resource private StoreProductMapper storeProductMapper;
 
     @Override
     public List<Order> list(Long userId, Integer status, Integer pageNum, Integer pageSize) {
@@ -49,6 +54,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void placeOrder(Order order) {
+        if (order.getStoreId() == null) {
+            throw new IllegalArgumentException("请选择门店后再下单");
+        }
+        Store store = storeMapper.findById(order.getStoreId());
+        if (store == null || store.getStatus() == null || store.getStatus() != 1) {
+            throw new IllegalArgumentException("所选门店当前不可下单");
+        }
         if (order.getOrderNo() == null || order.getOrderNo().trim().isEmpty()) {
             order.setOrderNo("SC" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
         }
@@ -85,6 +97,10 @@ public class OrderServiceImpl implements OrderService {
                     throw new IllegalArgumentException("无效的商品ID");
                 }
                 
+                Integer available = storeProductMapper.isProductAvailable(order.getStoreId(), it.getProductId());
+                if (available == null || available <= 0) {
+                    throw new IllegalArgumentException("商品 " + p.getName() + " 在当前门店不可售");
+                }
                 if (!found) {
                     if (p.getMinPrice() != null) {
                         realPrice = p.getMinPrice();

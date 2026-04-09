@@ -2,6 +2,7 @@ package com.smartcoffee.service.impl;
 
 import com.smartcoffee.entity.Product;
 import com.smartcoffee.mapper.ProductMapper;
+import com.smartcoffee.mapper.StoreProductMapper;
 import com.smartcoffee.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,15 +12,22 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
   @Resource private ProductMapper productMapper;
+  @Resource private StoreProductMapper storeProductMapper;
 
   @Override
-  public List<Product> list(Integer categoryId, String keyword, Integer pageNum, Integer pageSize) {
+  public List<Product> list(Long storeId, Integer categoryId, String keyword, Integer pageNum, Integer pageSize) {
     Integer offset = (pageNum - 1) * pageSize;
+    if (storeId != null) {
+      return storeProductMapper.listStoreProducts(storeId, categoryId, keyword, offset, pageSize);
+    }
     return productMapper.list(categoryId, keyword, offset, pageSize);
   }
 
   @Override
-  public int count(Integer categoryId, String keyword) {
+  public int count(Long storeId, Integer categoryId, String keyword) {
+    if (storeId != null) {
+      return storeProductMapper.countStoreProducts(storeId, categoryId, keyword);
+    }
     return productMapper.count(categoryId, keyword);
   }
 
@@ -32,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
   @Transactional
   public Long create(Product product) {
     productMapper.insert(product);
+    storeProductMapper.initializeMappingsForProduct(product.getId(), product.getIsActive() == null ? 1 : product.getIsActive());
     return product.getId();
   }
 

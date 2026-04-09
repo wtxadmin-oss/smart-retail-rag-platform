@@ -18,13 +18,14 @@ public class ProductController {
   @GetMapping
   // 面向前台用户分页查询商品列表，可按分类和关键字筛选。
   public Result<Result.PageData<Product>> list(
+      @RequestParam(required=false) Long storeId,
       @RequestParam(required=false) Integer categoryId,
       @RequestParam(required=false) String keyword,
       @RequestParam(defaultValue = "1") Integer pageNum,
       @RequestParam(defaultValue = "10") Integer pageSize) {
     if (pageSize > 100) pageSize = 100;
-    List<Product> list = productService.list(categoryId, keyword, pageNum, pageSize);
-    int total = productService.count(categoryId, keyword);
+    List<Product> list = productService.list(storeId, categoryId, keyword, pageNum, pageSize);
+    int total = productService.count(storeId, categoryId, keyword);
     return Result.page(total, list);
   }
 

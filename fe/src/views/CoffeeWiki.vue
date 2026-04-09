@@ -1,5 +1,8 @@
 <template>
-  <div class="coffee-wiki page-container">
+  <div class="coffee-wiki-page">
+    <Navbar />
+
+    <div class="coffee-wiki page-container">
     <div class="wiki-header">
       <h1>咖啡百科</h1>
       <p>探索咖啡的无限魅力，了解每一杯背后的故事</p>
@@ -62,12 +65,14 @@
         </el-collapse>
       </el-tab-pane>
     </el-tabs>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { Calendar, View } from '@element-plus/icons-vue'
+import Navbar from '../components/Navbar.vue'
 
 const activeTab = ref('knowledge')
 const activeFaq = ref(['1'])
@@ -108,8 +113,14 @@ const brewingSteps = [
 </script>
 
 <style scoped>
+.coffee-wiki-page {
+  min-height: 100vh;
+  background-color: var(--el-bg-color-page);
+}
+
 .coffee-wiki {
-  padding-top: 40px;
+  padding-top: 110px;
+  padding-bottom: 40px;
 }
 
 .wiki-header {

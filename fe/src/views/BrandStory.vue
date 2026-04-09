@@ -1,5 +1,8 @@
 <template>
-  <div class="brand-story page-container">
+  <div class="brand-story-page">
+    <Navbar />
+
+    <div class="brand-story page-container">
     <div class="hero-banner">
       <img src="/static/picture/xuanchuan1.jpg" alt="Brand Story Banner" class="hero-image" />
       <div class="hero-text">
@@ -46,11 +49,22 @@
       </el-row>
     </div>
   </div>
+  </div>
 </template>
 
+<script setup>
+import Navbar from '../components/Navbar.vue'
+</script>
+
 <style scoped>
+.brand-story-page {
+  min-height: 100vh;
+  background-color: var(--el-bg-color-page);
+}
+
 .brand-story {
-  padding-top: 60px;
+  padding-top: 110px;
+  padding-bottom: 40px;
 }
 
 .hero-banner {

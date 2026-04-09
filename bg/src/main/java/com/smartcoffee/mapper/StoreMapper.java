@@ -11,6 +11,7 @@ public interface StoreMapper {
   List<Store> listNeedGeo(@Param("limit") Integer limit);
   int updateGeo(@Param("id") Long id, @Param("lng") Double lng, @Param("lat") Double lat);
   List<Store> listActive();
+  Store findById(@Param("id") Long id);
   int insert(Store store);
   int update(Store store);
   int deleteById(@Param("id") Long id);

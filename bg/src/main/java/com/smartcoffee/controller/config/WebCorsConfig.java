@@ -36,10 +36,10 @@ public class WebCorsConfig implements WebMvcConfigurer {
   // 统一配置跨域规则，允许前端在开发环境下访问后端接口。
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/api/**")
-      .allowedOrigins("http://localhost:5173", "http://localhost:5500")
-      .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
-      .allowedHeaders("Authorization","Content-Type")
-      .allowCredentials(true)
+      .allowedOriginPatterns("*")
+      .allowedMethods("*")
+      .allowedHeaders("*")
+      .allowCredentials(false)
       .maxAge(3600);
   }
 }

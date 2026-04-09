@@ -7,6 +7,7 @@ public class Store {
   private String phone;
   private Double lng;
   private Double lat;
+  private String businessHours;
   private Integer status; // 1-营业中, 0-暂停
 
   public Long getId() { return id; }
@@ -23,4 +24,6 @@ public class Store {
   public void setLat(Double lat) { this.lat = lat; }
   public Integer getStatus() { return status; }
   public void setStatus(Integer status) { this.status = status; }
+  public String getBusinessHours() { return businessHours; }
+  public void setBusinessHours(String businessHours) { this.businessHours = businessHours; }
 }

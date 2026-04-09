@@ -321,3 +321,30 @@ INSERT INTO `users` VALUES (10, 'user09', '123456', 'CUSTOMER', '13900000009', 1
 INSERT INTO `users` VALUES (11, 'wtx', '123456', 'CUSTOMER', NULL, 1, '2026-03-13 16:36:25');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Store-aware migration (2026-04-09)
+-- ----------------------------
+ALTER TABLE `store`
+  ADD COLUMN IF NOT EXISTS `business_hours` varchar(100) NULL DEFAULT NULL AFTER `lat`;
+
+ALTER TABLE `cart_item`
+  ADD COLUMN IF NOT EXISTS `store_id` bigint NULL DEFAULT NULL AFTER `user_id`;
+
+ALTER TABLE `orders`
+  ADD COLUMN IF NOT EXISTS `store_id` bigint NULL DEFAULT NULL AFTER `user_id`;
+
+DROP TABLE IF EXISTS `store_product`;
+CREATE TABLE `store_product` (
+  `store_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  `is_available` tinyint NULL DEFAULT 1,
+  PRIMARY KEY (`store_id`, `product_id`) USING BTREE,
+  CONSTRAINT `fk_store_product_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_store_product_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `store_product` (`store_id`, `product_id`, `is_available`)
+SELECT s.`id`, p.`id`, CASE WHEN s.`status` = 1 THEN p.`is_active` ELSE 0 END
+FROM `store` s
+CROSS JOIN `product` p;

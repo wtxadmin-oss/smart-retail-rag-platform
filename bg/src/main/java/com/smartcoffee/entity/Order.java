@@ -44,4 +44,11 @@ public class Order {
     public void setPayTime(Date payTime) { this.payTime = payTime; }
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
+    private Long storeId;
+    private String storeName;
+
+    public Long getStoreId() { return storeId; }
+    public void setStoreId(Long storeId) { this.storeId = storeId; }
+    public String getStoreName() { return storeName; }
+    public void setStoreName(String storeName) { this.storeName = storeName; }
 }

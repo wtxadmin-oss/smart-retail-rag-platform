@@ -1,5 +1,8 @@
 <template>
-  <div class="membership page-container">
+  <div class="membership-page">
+    <Navbar />
+
+    <div class="membership page-container">
     <div class="member-header">
       <el-card class="user-card" shadow="hover">
         <div class="user-info">
@@ -67,12 +70,14 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup>
 import { useUserStore } from '../store/user'
 import { useRouter } from 'vue-router'
 import { Star, Present, Ticket, CoffeeCup, Discount } from '@element-plus/icons-vue'
+import Navbar from '../components/Navbar.vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -92,8 +97,14 @@ const coupons = [
 </script>
 
 <style scoped>
+.membership-page {
+  min-height: 100vh;
+  background-color: var(--el-bg-color-page);
+}
+
 .membership {
-  padding-top: 40px;
+  padding-top: 110px;
+  padding-bottom: 40px;
 }
 
 .member-header {

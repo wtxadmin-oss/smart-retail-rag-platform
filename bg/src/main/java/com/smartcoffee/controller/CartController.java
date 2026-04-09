@@ -3,6 +3,8 @@ package com.smartcoffee.controller;
 import com.smartcoffee.common.Result;
 import com.smartcoffee.entity.CartItem;
 import com.smartcoffee.mapper.CartMapper;
+import com.smartcoffee.mapper.StoreMapper;
+import com.smartcoffee.mapper.StoreProductMapper;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,8 @@ import java.util.List;
 @RequestMapping("/api/cart")
 public class CartController {
   @Resource private CartMapper cartMapper;
+  @Resource private StoreMapper storeMapper;
+  @Resource private StoreProductMapper storeProductMapper;
   @Resource private HttpServletRequest request;
 
   // 从请求上下文中读取当前登录用户 ID，避免直接信任前端传参。
@@ -34,8 +38,18 @@ public class CartController {
     if (item.getSkuId() == null) {
       return Result.fail(400, "规格 ID 不能为空");
     }
+    if (item.getStoreId() == null) {
+      return Result.fail(400, "门店 ID 不能为空");
+    }
     if (item.getQuantity() == null || item.getQuantity() <= 0) {
       item.setQuantity(1);
+    }
+    if (storeMapper.findById(item.getStoreId()) == null) {
+      return Result.fail(400, "门店不存在");
+    }
+    Integer available = storeProductMapper.isProductAvailable(item.getStoreId(), item.getProductId());
+    if (available == null || available <= 0) {
+      return Result.fail(400, "该商品当前门店不可售");
     }
     item.setUserId(getCurrentUserId());
     cartMapper.upsertAddQuantity(item);

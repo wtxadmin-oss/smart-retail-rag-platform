@@ -10,6 +10,7 @@ public class Product {
   private String imageUrl;
   private Integer isActive;
   private BigDecimal minPrice;
+  private Integer storeAvailable;
 
   public Long getId() { return id; }
   public void setId(Long id) { this.id = id; }
@@ -25,4 +26,6 @@ public class Product {
   public void setIsActive(Integer isActive) { this.isActive = isActive; }
   public BigDecimal getMinPrice() { return minPrice; }
   public void setMinPrice(BigDecimal minPrice) { this.minPrice = minPrice; }
+  public Integer getStoreAvailable() { return storeAvailable; }
+  public void setStoreAvailable(Integer storeAvailable) { this.storeAvailable = storeAvailable; }
 }

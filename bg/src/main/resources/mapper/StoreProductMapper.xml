@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smartcoffee.mapper.StoreProductMapper">
+  <select id="listStoreProducts" resultType="com.smartcoffee.entity.Product">
+    SELECT
+      p.id,
+      p.category_id AS categoryId,
+      p.name,
+      p.description,
+      p.image_url AS imageUrl,
+      p.is_active AS isActive,
+      sp.is_available AS storeAvailable,
+      (SELECT MIN(s.price) FROM product_sku s WHERE s.product_id = p.id) AS minPrice
+    FROM product p
+    JOIN store_product sp ON sp.product_id = p.id
+    JOIN store st ON st.id = sp.store_id
+    WHERE sp.store_id = #{storeId}
+      AND st.status = 1
+      AND p.is_active = 1
+      AND sp.is_available = 1
+      AND (#{categoryId} IS NULL OR p.category_id = #{categoryId})
+      AND (#{keyword} IS NULL OR p.name LIKE CONCAT('%', #{keyword}, '%'))
+    ORDER BY p.id DESC
+    <if test="offset != null and limit != null">
+      LIMIT #{offset}, #{limit}
+    </if>
+  </select>
+
+  <select id="countStoreProducts" resultType="int">
+    SELECT COUNT(*)
+    FROM product p
+    JOIN store_product sp ON sp.product_id = p.id
+    JOIN store st ON st.id = sp.store_id
+    WHERE sp.store_id = #{storeId}
+      AND st.status = 1
+      AND p.is_active = 1
+      AND sp.is_available = 1
+      AND (#{categoryId} IS NULL OR p.category_id = #{categoryId})
+      AND (#{keyword} IS NULL OR p.name LIKE CONCAT('%', #{keyword}, '%'))
+  </select>
+
+  <select id="listStoreProductConfigs" resultType="com.smartcoffee.entity.Product">
+    SELECT
+      p.id,
+      p.category_id AS categoryId,
+      p.name,
+      p.description,
+      p.image_url AS imageUrl,
+      p.is_active AS isActive,
+      COALESCE(sp.is_available, 0) AS storeAvailable,
+      (SELECT MIN(s.price) FROM product_sku s WHERE s.product_id = p.id) AS minPrice
+    FROM product p
+    LEFT JOIN store_product sp ON sp.product_id = p.id AND sp.store_id = #{storeId}
+    WHERE (#{categoryId} IS NULL OR p.category_id = #{categoryId})
+      AND (#{keyword} IS NULL OR p.name LIKE CONCAT('%', #{keyword}, '%'))
+    ORDER BY p.id DESC
+    <if test="offset != null and limit != null">
+      LIMIT #{offset}, #{limit}
+    </if>
+  </select>
+
+  <select id="countStoreProductConfigs" resultType="int">
+    SELECT COUNT(*)
+    FROM product p
+    WHERE (#{categoryId} IS NULL OR p.category_id = #{categoryId})
+      AND (#{keyword} IS NULL OR p.name LIKE CONCAT('%', #{keyword}, '%'))
+  </select>
+
+  <insert id="initializeMappingsForStore">
+    INSERT INTO store_product(store_id, product_id, is_available)
+    SELECT #{storeId}, p.id, p.is_active
+    FROM product p
+    WHERE NOT EXISTS (
+      SELECT 1 FROM store_product sp WHERE sp.store_id = #{storeId} AND sp.product_id = p.id
+    )
+  </insert>
+
+  <insert id="initializeMappingsForProduct">
+    INSERT INTO store_product(store_id, product_id, is_available)
+    SELECT s.id, #{productId}, CASE WHEN s.status = 1 THEN #{isAvailable} ELSE 0 END
+    FROM store s
+    WHERE NOT EXISTS (
+      SELECT 1 FROM store_product sp WHERE sp.store_id = s.id AND sp.product_id = #{productId}
+    )
+  </insert>
+
+  <insert id="upsertAvailability">
+    INSERT INTO store_product(store_id, product_id, is_available)
+    VALUES(#{storeId}, #{productId}, #{isAvailable})
+    ON DUPLICATE KEY UPDATE is_available = VALUES(is_available)
+  </insert>
+
+  <select id="isProductAvailable" resultType="int">
+    SELECT COUNT(*)
+    FROM store_product sp
+    JOIN product p ON p.id = sp.product_id
+    JOIN store s ON s.id = sp.store_id
+    WHERE sp.store_id = #{storeId}
+      AND sp.product_id = #{productId}
+      AND sp.is_available = 1
+      AND p.is_active = 1
+      AND s.status = 1
+  </select>
+</mapper>

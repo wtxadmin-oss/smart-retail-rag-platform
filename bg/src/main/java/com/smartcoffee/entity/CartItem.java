@@ -8,6 +8,8 @@ public class CartItem {
   private Long userId;
   private Long productId;
   private Long skuId;
+  private Long storeId;
+  private String storeName;
   private String productName;
   private String productImage;
   private String skuSpec;
@@ -23,6 +25,10 @@ public class CartItem {
   public void setProductId(Long productId) { this.productId = productId; }
   public Long getSkuId() { return skuId; }
   public void setSkuId(Long skuId) { this.skuId = skuId; }
+  public Long getStoreId() { return storeId; }
+  public void setStoreId(Long storeId) { this.storeId = storeId; }
+  public String getStoreName() { return storeName; }
+  public void setStoreName(String storeName) { this.storeName = storeName; }
   public String getProductName() { return productName; }
   public void setProductName(String productName) { this.productName = productName; }
   public String getProductImage() { return productImage; }

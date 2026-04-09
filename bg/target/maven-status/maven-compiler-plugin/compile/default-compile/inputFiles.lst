@@ -4,6 +4,7 @@ D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\common\Result.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\controller\ChatController.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\entity\Store.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\entity\OrderItem.java
+D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\mapper\StoreProductMapper.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\service\ai\RagChatService.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\service\impl\CoffeeServiceImpl.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\controller\AdminProductController.java
@@ -18,6 +19,7 @@ D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\SmartCoffeeApplication.
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\entity\ProductSku.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\service\ai\RagIndexInitializer.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\controller\config\WebCorsConfig.java
+D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\entity\StoreProduct.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\service\CoffeeService.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\mapper\UserMapper.java
 D:\git\SmartCoffee_Demo\bg\src\main\java\com\smartcoffee\service\CategoryService.java

@@ -7,6 +7,8 @@
     <result column="order_no" property="orderNo"/>
     <result column="user_id" property="userId"/>
     <result column="username" property="username"/>
+    <result column="store_id" property="storeId"/>
+    <result column="store_name" property="storeName"/>
     <result column="total_amount" property="totalAmount"/>
     <result column="status" property="status"/>
     <result column="receiver_name" property="receiverName"/>
@@ -28,9 +30,10 @@
   </resultMap>
 
   <select id="list" resultMap="OrderMap">
-    SELECT o.*, u.username
+    SELECT o.*, u.username, s.name AS store_name
     FROM orders o
     JOIN users u ON o.user_id = u.id
+    LEFT JOIN store s ON o.store_id = s.id
     WHERE (#{userId} IS NULL OR o.user_id = #{userId})
       AND (#{status} IS NULL OR o.status = #{status})
     ORDER BY o.create_time DESC
@@ -47,9 +50,10 @@
   </select>
 
   <select id="findById" resultMap="OrderMap">
-    SELECT o.*, u.username
+    SELECT o.*, u.username, s.name AS store_name
     FROM orders o
     JOIN users u ON o.user_id = u.id
+    LEFT JOIN store s ON o.store_id = s.id
     WHERE o.id = #{id}
   </select>
 
@@ -58,8 +62,8 @@
   </select>
 
   <insert id="insert" parameterType="com.smartcoffee.entity.Order" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO orders(order_no, user_id, total_amount, status, receiver_name, receiver_phone, receiver_address)
-    VALUES(#{orderNo}, #{userId}, #{totalAmount}, #{status}, #{receiverName}, #{receiverPhone}, #{receiverAddress})
+    INSERT INTO orders(order_no, user_id, store_id, total_amount, status, receiver_name, receiver_phone, receiver_address)
+    VALUES(#{orderNo}, #{userId}, #{storeId}, #{totalAmount}, #{status}, #{receiverName}, #{receiverPhone}, #{receiverAddress})
   </insert>
 
   <insert id="insertItem" parameterType="com.smartcoffee.entity.OrderItem">

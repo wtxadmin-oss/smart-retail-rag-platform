@@ -1,8 +1,11 @@
 package com.smartcoffee.controller;
 
 import com.smartcoffee.common.Result;
+import com.smartcoffee.entity.Product;
 import com.smartcoffee.entity.Store;
+import com.smartcoffee.entity.StoreProduct;
 import com.smartcoffee.mapper.StoreMapper;
+import com.smartcoffee.mapper.StoreProductMapper;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api/admin/stores")
 public class StoreController {
   @Resource private StoreMapper storeMapper;
+  @Resource private StoreProductMapper storeProductMapper;
   @Resource private AmapGeocodeClient amapGeocodeClient;
 
   @PostMapping("/init")
@@ -50,6 +54,7 @@ public class StoreController {
   public Result<Long> create(@RequestBody Store store) {
     if (store.getStatus() == null) store.setStatus(1);
     storeMapper.insert(store);
+    storeProductMapper.initializeMappingsForStore(store.getId());
     return Result.ok(store.getId());
   }
 
@@ -65,6 +70,33 @@ public class StoreController {
   // 删除指定门店。
   public Result<Void> delete(@PathVariable Long id) {
     storeMapper.deleteById(id);
+    return Result.ok();
+  }
+
+  @GetMapping("/{storeId}/products")
+  public Result<Result.PageData<Product>> listStoreProducts(
+      @PathVariable Long storeId,
+      @RequestParam(required = false) Integer categoryId,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(defaultValue = "1") Integer pageNum,
+      @RequestParam(defaultValue = "10") Integer pageSize) {
+    if (pageSize > 100) pageSize = 100;
+    Integer offset = (pageNum - 1) * pageSize;
+    List<Product> list = storeProductMapper.listStoreProductConfigs(storeId, categoryId, keyword, offset, pageSize);
+    int total = storeProductMapper.countStoreProductConfigs(storeId, categoryId, keyword);
+    return Result.page(total, list);
+  }
+
+  @PutMapping("/{storeId}/products/{productId}")
+  public Result<Void> updateStoreProductAvailability(
+      @PathVariable Long storeId,
+      @PathVariable Long productId,
+      @RequestBody StoreProduct storeProduct) {
+    Integer isAvailable = storeProduct == null ? null : storeProduct.getIsAvailable();
+    if (isAvailable == null) {
+      return Result.fail(400, "缺少上下架状态");
+    }
+    storeProductMapper.upsertAvailability(storeId, productId, isAvailable);
     return Result.ok();
   }
 }
